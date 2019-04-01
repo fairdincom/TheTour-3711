@@ -6,10 +6,10 @@ parameters:
   keyVaultSecret:
     value: "thetour"
   appInsightsName:
-    value: thetour-brk3711-appins
+    value: "thetour-brk3711-appins"
   storageAccountName:
-    value: thetourbrk3711st
+    value: "thetourbrk3711st"
   consumptionPlanName:
-    value: thetour-brk3711-csplan
+    value: "thetour-brk3711-csplan"
   functionAppName:
-    value: thetour-brk3711-fncapp
+    value: "thetour-brk3711-fncapp"

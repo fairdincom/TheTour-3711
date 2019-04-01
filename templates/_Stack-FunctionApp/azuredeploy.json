@@ -68,7 +68,8 @@
       "apiVersion": "[providers('Microsoft.Web', 'serverfarms').apiVersions[0]]"
     },
     "functionApp": {
-      "name": "[parameters('functionAppName')]"
+      "name": "[parameters('functionAppName')]",
+      "eventName": "lorem ipsum"
     }
   },
   "resources": [
@@ -83,7 +84,9 @@
           "uri": "https://raw.githubusercontent.com/fairdincom/TheTour-BRK3711/master/templates/FunctionApp/azuredeploy.json"
         },
         "parameters": {
-          "name": "[variables('functionApp').name]",
+          "name": {
+            "value": "[variables('functionApp').name]"
+          },
           "eventName": {
             "reference": {
               "keyVault": {
@@ -93,13 +96,13 @@
             }
           },
           "appInsightsName": {
-            "value": "thetour-brk3711-appins"
+            "value": "[variables('appInsights').name]"
           },
           "storageAccountName": {
-            "value": "thetourbrk3711st"
+            "value": "[variables('storageAccount').name]"
           },
           "consumptionPlanName": {
-            "value": "thetour-brk3711-csplan"
+            "value": "[variables('consumptionPlan').name]"
           }
         }
       }
