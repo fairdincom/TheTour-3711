@@ -1,0 +1,9 @@
+{
+  "parameters": [
+    "name",
+    "eventName"
+  ],
+  "resources": [
+    "parameters('"
+  ]
+}

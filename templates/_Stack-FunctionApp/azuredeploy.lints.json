@@ -1,0 +1,10 @@
+{
+  "parameters": [
+    "keyVaultName",
+    "keyVaultSecret",
+    "functionAppName"
+  ],
+  "resources": [
+    "parameters('"
+  ]
+}

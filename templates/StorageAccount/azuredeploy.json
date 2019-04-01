@@ -1,0 +1,92 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "name": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the resource."
+      },
+      "defaultValue": ""
+    },
+    "storageAccountKind": {
+      "type": "string",
+      "metadata": {
+        "description": "The type of Storage Account instance."
+      },
+      "allowedValues": [
+        "StorageV2"
+      ],
+      "defaultValue": "StorageV2"
+    },
+    "storageAccountSkuName": {
+      "type": "string",
+      "metadata": {
+        "description": "SKU Name for the Storage Account"
+      },
+      "defaultValue": "Standard_LRS"
+    },
+    "storageAccountSkuTier": {
+      "type": "string",
+      "metadata": {
+        "description": "SKU Tier for the Storage Account"
+      },
+      "defaultValue": "Standard"
+    }
+  },
+  "variables": {
+    "tags": {},
+    "storageAccount": {
+      "name": "[parameters('name')]",
+      "apiVersion": "[providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]]",
+      "location": "koreacentral",
+      "kind": "[parameters('storageAccountKind')]",
+      "sku": {
+        "name": "[parameters('storageAccountSkuName')]",
+        "tier": "[parameters('storageAccountSkuTier')]"
+      }
+    }
+  },
+  "resources": [
+    {
+      "comments": "### RESOURCE: STORAGE ACCOUNT ###",
+      "apiVersion": "[variables('storageAccount').apiVersion]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "kind": "[variables('storageAccount').kind]",
+      "location": "[variables('storageAccount').location]",
+      "tags": "[variables('tags')]",
+      "name": "[variables('storageAccount').name]",
+      "sku": {
+        "name": "[variables('storageAccount').sku.name]",
+        "tier": "[variables('storageAccount').sku.tier]"
+      },
+      "properties": {
+        "encryption": {
+          "keySource": "Microsoft.Storage",
+          "services": {
+            "file": {
+              "enabled": true
+            },
+            "blob": {
+              "enabled": true
+            }
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "storageAccountName": {
+      "type": "string",
+      "value": "[variables('storageAccount').name]"
+    },
+    "storageAccountKey": {
+      "type": "string",
+      "value": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount').name), variables('storageAccount').apiVersion).keys[0].value]"
+    },
+    "storageAccountEndpoint": {
+      "type": "string",
+      "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccount').name, ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount').name), variables('storageAccount').apiVersion).keys[0].value, ';EndpointSuffix=core.windows.net')]"
+    }
+  }
+}

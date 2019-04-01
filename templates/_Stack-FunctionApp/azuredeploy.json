@@ -1,0 +1,109 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "keyVaultName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the Key Vault."
+      },
+      "defaultValue": ""
+    },
+    "keyVaultSecret": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the Key Vault secret."
+      },
+      "defaultValue": ""
+    },
+    "appInsightsName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the Application Insights."
+      },
+      "defaultValue": ""
+    },
+    "storageAccountName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the Storage Account."
+      },
+      "defaultValue": ""
+    },
+    "consumptionPlanName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the Consumption Plan."
+      },
+      "defaultValue": ""
+    },
+    "functionAppName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the Function App."
+      },
+      "defaultValue": ""
+    }
+  },
+  "variables": {
+    "linked": {
+      "apiVersion": "[providers('Microsoft.Resources', 'deployments').apiVersions[0]]"
+    },
+    "keyVault": {
+      "name": "[parameters('keyVaultName')]",
+      "secrets": {
+        "name": "[parameters('keyVaultSecret')]"
+      }
+    },
+    "appInsights": {
+      "name": "[parameters('appInsightsName')]",
+      "apiVersion": "[providers('Microsoft.Insights', 'components').apiVersions[0]]"
+    },
+    "storageAccount": {
+      "name": "[parameters('storageAccountName')]",
+      "apiVersion": "[providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]]"
+    },
+    "consumptionPlan": {
+      "name": "[parameters('consumptionPlanName')]",
+      "apiVersion": "[providers('Microsoft.Web', 'serverfarms').apiVersions[0]]"
+    },
+    "functionApp": {
+      "name": "[parameters('functionAppName')]"
+    }
+  },
+  "resources": [
+    {
+      "comments": "### RESOURCE - FUNCTION APP ###",
+      "apiVersion": "[variables('linked').apiVersion]",
+      "type": "Microsoft.Resources/deployments",
+      "name": "fncapp",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "https://raw.githubusercontent.com/fairdincom/TheTour-BRK3711/master/templates/FunctionApp/azuredeploy.json"
+        },
+        "parameters": {
+          "name": "[variables('functionApp').name]",
+          "eventName": {
+            "reference": {
+              "keyVault": {
+                "id": "[resourceId('Microsoft.KeyVault/vaults', variables('keyVault').name)]"
+              },
+              "secretName": "[variables('keyVault').secrets.name]"
+            }
+          },
+          "appInsightsName": {
+            "value": "thetour-brk3711-appins"
+          },
+          "storageAccountName": {
+            "value": "thetourbrk3711st"
+          },
+          "consumptionPlanName": {
+            "value": "thetour-brk3711-csplan"
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {}
+}

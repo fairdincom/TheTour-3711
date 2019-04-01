@@ -1,0 +1,131 @@
+$schema: https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#
+contentVersion: 1.0.0.0
+parameters:
+  name:
+    type: string
+    metadata:
+      description: The name of the resource.
+    defaultValue: ""
+  eventName:
+    type: securestring
+    metadata:
+      description: The name of the event.
+    defaultValue: "Ignite"
+
+  # RESOURCE SPECIFIC PARAMETERS
+  appInsightsName:
+    type: string
+    metadata:
+      description: The name of the Application Insights.
+    defaultValue: ""
+  storageAccountName:
+    type: string
+    metadata:
+      description: The name of the Storage Account.
+    defaultValue: ""
+  consumptionPlanName:
+    type: string
+    metadata:
+      description: The name of the Consumption Plan.
+    defaultValue: ""
+  functionAppKind:
+    type: string
+    metadata:
+      description: The type of Function App instance.
+    allowedValues:
+    - functionapp
+    defaultValue: functionapp
+  functionAppSecretStorageType:
+    type: string
+    metadata:
+      description: The type where to store the function app secrets. eg) blob or files
+    allowedValues:
+    - Blob
+    - Files
+    defaultValue: Files
+  functionAppWorkerRuntime:
+    type: string
+    metadata:
+      description: The worker runtime of Azure Function instance. eg) dotnet, java, node, etc
+    allowedValues:
+    - dotnet
+    - node
+    - java
+    defaultValue: dotnet
+  functionAppExtensionVersion:
+    type: string
+    metadata:
+      description: The extension version of the function app.
+    allowedValues:
+    - "~1"
+    - "~2"
+    defaultValue: "~2"
+  functionAppEditMode:
+    type: string
+    metadata:
+      description: The edit mode of the function app.
+    allowedValues:
+    - readonly
+    - readwrite
+    defaultValue: readonly
+
+variables:
+  # TAGS
+  tags:
+    event: "[parameters('eventName')]"
+
+  # RESOURCE SPECIFIC VARIABLES
+  appInsights:
+    name: "[parameters('appInsightsName')]"
+    apiVersion: "[providers('Microsoft.Insights', 'components').apiVersions[0]]"
+  storageAccount:
+    name: "[parameters('storageAccountName')]"
+    apiVersion: "[providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]]"
+  consumptionPlan:
+    name: "[parameters('consumptionPlanName')]"
+    apiVersion: "[providers('Microsoft.Web', 'serverfarms').apiVersions[0]]"
+  functionApp:
+    name: "[parameters('name')]"
+    apiVersion: "[providers('Microsoft.Web', 'sites').apiVersions[0]]"
+    location: "koreacentral"
+    kind: "[parameters('functionAppKind')]"
+    appSettings:
+      secretStorageType: "[parameters('functionAppSecretStorageType')]"
+      extensionVersion: "[parameters('functionAppExtensionVersion')]"
+      editMode: "[parameters('functionAppEditMode')]"
+      workerRuntimeType: "[parameters('functionAppWorkerRuntime')]"
+
+resources:
+- comments: "### RESOURCE - FUNCTION APP ###"
+  apiVersion: "[variables('functionApp').apiVersion]"
+  type: Microsoft.Web/sites
+  kind: "[variables('functionApp').kind]"
+  location: "[variables('functionApp').location]"
+  tags: "[variables('tags')]"
+  name: "[variables('functionApp').name]"
+  properties:
+    name: "[variables('functionApp').name]"
+    serverFarmId: "[resourceId('Microsoft.Web/serverfarms', variables('consumptionPlan').name)]"
+
+  resources:
+  - comments: "### RESOURCE - FUNCTION APP - APP SETTINGS ###"
+    apiVersion: "[variables('functionApp').apiVersion]"
+    type: config
+    name: appsettings
+    dependsOn:
+    - "[resourceId('Microsoft.Web/Sites', variables('functionApp').name)]"
+    properties:
+      AzureWebJobsDashboard: "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccount').name, ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount').name), variables('storageAccount').apiVersion).keys[0].value, ';EndpointSuffix=core.windows.net')]"
+      AzureWebJobsStorage: "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccount').name, ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount').name), variables('storageAccount').apiVersion).keys[0].value, ';EndpointSuffix=core.windows.net')]"
+      AzureWebJobsSecretStorageType: "[variables('functionApp').appSettings.secretStorageType]"
+      APPINSIGHTS_INSTRUMENTATIONKEY: "[reference(resourceId('Microsoft.Insights/components', variables('appInsights').name), variables('appInsights').apiVersion, 'Full').properties.instrumentationKey]"
+      FUNCTIONS_EXTENSION_VERSION: "[variables('functionApp').appSettings.extensionVersion]"
+      FUNCTION_APP_EDIT_MODE: "[variables('functionApp').appSettings.editMode]"
+      FUNCTIONS_WORKER_RUNTIME: "[variables('functionApp').appSettings.workerRuntimeType]"
+      WEBSITE_CONTENTAZUREFILECONNECTIONSTRING: "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('storageAccount').name, ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageAccount').name), variables('storageAccount').apiVersion).keys[0].value, ';EndpointSuffix=core.windows.net')]"
+      WEBSITE_CONTENTSHARE: "[toLower(variables('functionApp').name)]"
+
+outputs:
+  hostname:
+    type: string
+    value: "[concat('https://', reference(variables('functionApp').name).hostNames[0])]"

@@ -1,0 +1,76 @@
+$schema: https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#
+contentVersion: 1.0.0.0
+parameters:
+  name:
+    type: string
+    metadata:
+      description: The name of the resource.
+    defaultValue: ""
+
+  # RESOURCE SPECIFIC PARAMETERS
+  consumptionPlanKind:
+    type: string
+    metadata:
+      description: The type of Consumption Plan instance.
+    allowedValues:
+    - functionapp
+    defaultValue: functionapp
+  consumptionPlanSkuName:
+    type: string
+    metadata:
+      description: The name of SKU for App Service Plan.
+    defaultValue: Y1
+  consumptionPlanSkuTier:
+    type: string
+    metadata:
+      description: The tier of SKU for App Service Plan.
+    defaultValue: Dynamic
+  consumptionPlanSkuSize:
+    type: string
+    metadata:
+      description: The size of SKU for App Service Plan.
+    defaultValue: Y1
+  consumptionPlanSkuFamily:
+    type: string
+    metadata:
+      description: The family of SKU for App Service Plan.
+    defaultValue: "Y"
+  consumptionPlanSkuCapacity:
+    type: int
+    metadata:
+      description: The capacity of SKU for App Service Plan.
+    defaultValue: 1
+
+variables:
+  # TAGS
+  tags: {}
+
+  # RESOURCE SPECIFIC VARIABLES
+  consumptionPlan:
+    name: "[parameters('name')]"
+    apiVersion: "[providers('Microsoft.Web', 'serverfarms').apiVersions[0]]"
+    location: "koreacentral"
+    kind: "[parameters('consumptionPlanKind')]"
+    sku:
+      name: "[parameters('consumptionPlanSkuName')]"
+      tier: "[parameters('consumptionPlanSkuTier')]"
+      size: "[parameters('consumptionPlanSkuSize')]"
+      family: "[parameters('consumptionPlanSkuFamily')]"
+      capacity: "[parameters('consumptionPlanSkuCapacity')]"
+
+resources:
+- comments: "### RESOURCE - CONSUMPTION PLAN (WINDOWS) ###"
+  apiVersion: "[variables('consumptionPlan').apiVersion]"
+  type: Microsoft.Web/serverfarms
+  kind: "[variables('consumptionPlan').kind]"
+  location: "[variables('consumptionPlan').location]"
+  tags: "[variables('tags')]"
+  name: "[variables('consumptionPlan').name]"
+  sku: "[variables('consumptionPlan').sku]"
+  properties:
+    name: "[variables('consumptionPlan').name]"
+
+outputs:
+  consumptionPlanName:
+    type: string
+    value: "[variables('consumptionPlan').name]"

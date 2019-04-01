@@ -1,0 +1,25 @@
+$schema: https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#
+contentVersion: 1.0.0.0
+parameters:
+  name:
+    value: "thetour-brk3711-fncapp"
+  eventName:
+    value: "My event"
+
+# RESOURCE SPECIFIC
+  appInsightsName:
+    value: thetour-brk3711-appins
+  storageAccountName:
+    value: thetourbrk3711st
+  consumptionPlanName:
+    value: thetour-brk3711-csplan
+  functionAppKind:
+    value: functionapp
+  functionAppSecretStorageType:
+    value: Files
+  functionAppWorkerRuntime:
+    value: dotnet
+  functionAppExtensionVersion:
+    value: "~2"
+  functionAppEditMode:
+    value: readonly
