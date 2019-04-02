@@ -72,9 +72,9 @@ Get-ChildItem -Path $RootDirectory -Directory -Exclude bin,outputs,scripts | For
 $notpassed = $result | Where-Object { $_ -eq $false }
 
 if ($notpassed.Count -eq 0) {
-    Write-Host "Lint Passed"
+    Write-Host "Lint Passed" -ForegroundColor Green
 } else {
-    Write-Host "Lint Failed"
+    Write-Host "Lint Failed" -ForegroundColor Red -BackgroundColor Yellow
 
     if ($IsLocal -eq $false) {
         throw "Lint Failed"

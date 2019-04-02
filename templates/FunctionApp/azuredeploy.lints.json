@@ -1,7 +1,15 @@
 {
   "parameters": [
     "name",
-    "eventName"
+    "eventName",
+    "appInsightsName",
+    "storageAccountName",
+    "consumptionPlanName",
+    "functionAppKind",
+    "functionAppSecretStorageType",
+    "functionAppWorkerRuntime",
+    "functionAppExtensionVersion",
+    "functionAppEditMode"
   ],
   "resources": [
     "parameters('"

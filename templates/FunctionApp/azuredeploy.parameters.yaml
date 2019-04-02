@@ -4,7 +4,7 @@ parameters:
   name:
     value: "thetour-brk3711-fncapp"
   eventName:
-    value: "My event"
+    value: "hello world"
 
 # RESOURCE SPECIFIC
   appInsightsName:
